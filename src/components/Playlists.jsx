@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { FaPlay, FaTrash } from 'react-icons/fa';
+import { FaPlay, FaTrash, FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
 
-export default function Playlists({ playlists, onCreate, onPlayPlaylist, onDeletePlaylist }) {
+export default function Playlists({ playlists, onCreate, onPlayPlaylist, onDeletePlaylist, onUpdatePlaylist }) {
   const [name, setName] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editValue, setEditValue] = useState('');
 
   return (
     <div className="panel">
@@ -47,23 +49,63 @@ export default function Playlists({ playlists, onCreate, onPlayPlaylist, onDelet
           >
             {/* Playlist Name & Song Count */}
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontWeight: 700,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {pl.name}
-              </div>
-              <div className="small" style={{ marginTop: 2 }}>
-                {pl.songIds.length} songs
-              </div>
+              {editingId === pl.id ? (
+                <div style={{ display: 'flex', gap: 6 }}>
+                  <input
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    style={{ flex: 1, padding: '4px 6px', borderRadius: 6 }}
+                  />
+                  <button
+                    onClick={() => {
+                      if (editValue.trim()) {
+                        onUpdatePlaylist(pl.id, editValue.trim());
+                        setEditingId(null);
+                      }
+                    }}
+                    style={{ background: '#22c55e', color: 'white', borderRadius: 6, padding: '4px 6px' }}
+                  >
+                    <FaCheck />
+                  </button>
+                  <button
+                    onClick={() => setEditingId(null)}
+                    style={{ background: '#ef4444', color: 'white', borderRadius: 6, padding: '4px 6px' }}
+                  >
+                    <FaTimes />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div
+                    style={{
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                    }}
+                  >
+                    {pl.name}
+                  </div>
+                  <div className="small" style={{ marginTop: 2 }}>
+                    {pl.songIds.length} songs
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Action Buttons */}
             <div style={{ display: 'flex', gap: 6 }}>
+              {editingId !== pl.id && (
+                <button
+                  onClick={() => {
+                    setEditingId(pl.id);
+                    setEditValue(pl.name);
+                  }}
+                  style={{ background: '#f59e0b', borderRadius: 6, padding: '4px 6px', color: 'white' }}
+                >
+                  <FaEdit />
+                </button>
+              )}
               <button
                 onClick={() => onPlayPlaylist(pl.id)}
                 style={{ background: '#22c55e', borderRadius: 6, padding: '4px 6px', color: 'white' }}

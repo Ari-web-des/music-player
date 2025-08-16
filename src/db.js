@@ -1,11 +1,10 @@
-// db.js - tiny IndexedDB wrapper for songs & playlists;
+// db.js - tiny IndexedDB wrapper for songs & playlists
+
 const DB_NAME = 'bolly-player-db';
 const DB_VERSION = 1;
 const STORE_SONGS = 'songs';
 const STORE_PLAYLISTS = 'playlists';
-const jsmediatags = window.jsmediatags;
-
-
+const jsmediatags = window.jsmediatags; // must include <script src="https://cdn.jsdelivr.net/npm/jsmediatags@3.9.5/dist/jsmediatags.min.js"></script> in index.html
 
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -29,33 +28,38 @@ function getDurationFromBlob(blob) {
     const url = URL.createObjectURL(blob);
     const audio = new Audio();
     audio.src = url;
-    const cleanup = () => { try { URL.revokeObjectURL(url); } catch (err) {} };
+    const cleanup = () => { try { URL.revokeObjectURL(url); } catch {} };
     audio.addEventListener('loadedmetadata', () => {
       const d = audio.duration || 0;
       cleanup();
       resolve(isFinite(d) ? d : 0);
     });
-    audio.addEventListener('error', () => {
-      cleanup();
-      resolve(0);
-    });
+    audio.addEventListener('error', () => { cleanup(); resolve(0); });
   });
 }
 
 export async function addSong(file) {
   const duration = await getDurationFromBlob(file);
-  const metadata = await new Promise((resolve) => {
-    new jsmediatags.Reader(file)
-      .read({
-        onSuccess: (tag) => {
-          resolve({
-            title: tag.tags.title || '',
-            artist: tag.tags.artist || ''
-          });
-        },
-        onError: () => resolve({ title: '', artist: '' })
+
+  // Use jsmediatags safely
+  let metadata = { title: '', artist: '' };
+  if (jsmediatags) {
+    try {
+      metadata = await new Promise((resolve) => {
+        new jsmediatags.Reader(file).read({
+          onSuccess: (tag) => resolve({ 
+            title: tag.tags.title || '', 
+            artist: tag.tags.artist || '' 
+          }),
+          onError: () => resolve({ title: '', artist: '' })
+        });
       });
-  });
+    } catch (err) {
+      console.warn('Failed to read metadata:', err);
+    }
+  } else {
+    console.warn('jsmediatags not loaded. Include via CDN in index.html.');
+  }
 
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -63,7 +67,7 @@ export async function addSong(file) {
     const store = tx.objectStore(STORE_SONGS);
     const item = {
       name: file.name,
-      title: metadata.title || file.name,  // fallback
+      title: metadata.title || file.name,
       artist: metadata.artist || 'Unknown Artist',
       type: file.type,
       size: file.size,
@@ -72,14 +76,12 @@ export async function addSong(file) {
       blob: file
     };
     const req = store.add(item);
-    req.onsuccess = (e) => {
-      item.id = e.target.result;
-      resolve(item);
-    };
+    req.onsuccess = (e) => { item.id = e.target.result; resolve(item); };
     req.onerror = (e) => reject(e.target.error);
   });
 }
 
+// --- SONGS ---
 export async function getAllSongs() {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -97,11 +99,7 @@ export async function getSongBlob(id) {
     const tx = db.transaction(STORE_SONGS, 'readonly');
     const store = tx.objectStore(STORE_SONGS);
     const req = store.get(id);
-    req.onsuccess = (e) => {
-      const record = e.target.result;
-      if (record) resolve(record.blob);
-      else resolve(null);
-    };
+    req.onsuccess = (e) => resolve(e.target.result?.blob || null);
     req.onerror = (e) => reject(e.target.error);
   });
 }
@@ -117,7 +115,7 @@ export async function deleteSong(id) {
   });
 }
 
-// Playlists
+// --- PLAYLISTS ---
 export async function createPlaylist(name, songIds = []) {
   const db = await openDB();
   return new Promise((resolve, reject) => {
@@ -136,8 +134,8 @@ export async function getAllPlaylists() {
     const tx = db.transaction(STORE_PLAYLISTS, 'readonly');
     const store = tx.objectStore(STORE_PLAYLISTS);
     const req = store.getAll();
-    req.onsuccess = e => resolve(e.target.result);
-    req.onerror = e => reject(e.target.error);
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror = (e) => reject(e.target.error);
   });
 }
 
