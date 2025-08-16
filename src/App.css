@@ -19,12 +19,8 @@
 }
 
 @keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -33,10 +29,76 @@
   }
 }
 
-.card {
-  padding: 2em;
+.card { padding: 2em; }
+.read-the-docs { color: #888; }
+
+/* Player Bar */
+.player-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #222;
+  padding: 8px 12px;
+  border-top: 1px solid #333;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
 }
 
-.read-the-docs {
-  color: #888;
+.player-bar img {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+}
+
+.player-bar .player-info {
+  flex: 1;
+  text-align: left;
+}
+
+/* Song & Playlist Items */
+.song-item,
+.playlist-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+    padding: 8px;
+  }
+
+  .panel {
+    width: 100%;
+    margin-bottom: 16px;
+    max-height: none;
+  }
+
+  .player-bar {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .player-bar img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 6px;
+  }
+
+  .song-item,
+  .playlist-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .song-item button,
+  .playlist-item button {
+    margin-top: 4px;
+  }
 }
