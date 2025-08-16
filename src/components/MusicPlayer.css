@@ -1,0 +1,82 @@
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background-color: #0e0e1a;
+  color: white;
+}
+
+.app-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 20px;
+  padding: 20px;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.library, .player, .playlists {
+  background-color: #161627;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+h2 {
+  margin-bottom: 15px;
+}
+
+button {
+  background: linear-gradient(135deg, #7a00ff, #a100ff);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  background: linear-gradient(135deg, #a100ff, #7a00ff);
+}
+
+input[type="file"], input[type="text"], input[type="range"] {
+  margin-top: 10px;
+  margin-bottom: 15px;
+  padding: 8px;
+  border-radius: 6px;
+  border: none;
+  background-color: #1f1f33;
+  color: white;
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.time {
+  margin-bottom: 15px;
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.tip {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.playlist-create {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.library-list {
+  margin-top: auto;
+}
